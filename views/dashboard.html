@@ -1,0 +1,112 @@
+<!-- views/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Saved Resources</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    .file-card { border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; }
+    button { margin-top: 0.5rem; }
+    form { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Welcome, <span id="userEmail"></span></h1>
+
+  <!-- Upload File Form -->
+  <h2>Upload a New File</h2>
+  <form id="uploadForm">
+    <input type="file" name="file" required><br><br>
+    <button type="submit">Upload File</button>
+  </form>
+
+  <!-- File List -->
+  <h2>Your Uploaded Files</h2>
+  <div id="fileList">Loading files...</div>
+
+  <script>
+    const email = localStorage.getItem("userEmail");
+    document.getElementById("userEmail").textContent = email || "Guest";
+
+    if (!email) {
+      alert("Please login first.");
+      window.location.href = "/";
+    } else {
+      loadFiles();
+
+    // Handle File Upload
+    document.getElementById("uploadForm").onsubmit = async function(event) {
+        event.preventDefault();
+        const fileInput = event.target.querySelector('input[name="file"]');
+        const file = fileInput.files[0];
+        if (!file) return alert("Please choose a file.");
+
+        const formData = new FormData();
+        formData.append("emailid", email);
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload", {  <!-- ✅ updated this line -->
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        alert(result?.result || "File uploaded.");
+        fileInput.value = '';
+        loadFiles();
+      };
+    }
+
+    function loadFiles() {
+      fetch(`/api/userdata?emailid=${email}`)
+        .then(res => res.json())
+        .then(data => {
+          const fileList = document.getElementById("fileList");
+          fileList.innerHTML = "";
+
+          if (data.length === 0) {
+            fileList.innerHTML = "<p>No files uploaded yet.</p>";
+            return;
+          }
+
+          data.forEach(file => {
+  const div = document.createElement("div");
+  div.className = "file-card";
+
+            div.innerHTML = `
+                <p><strong>Filename:</strong> ${file.filename}</p>
+                <p>
+                <a href="${file.filelocation}" target="_blank" rel="noopener noreferrer">👁️ View</a> | 
+                <a href="${file.filelocation}" download>⬇️ Download</a>
+                </p>
+                <button onclick="deleteFile('${file.filekey}')">Delete</button>
+            `;
+                // 🔍 Preview image files
+                if (file.filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    div.innerHTML += `<img src="${file.filelocation}" width="300px" />`;
+                }
+
+                // 📄 Preview PDFs
+                if (file.filename.match(/\.pdf$/i)) {
+                    div.innerHTML += `<iframe src="${file.filelocation}" width="100%" height="400px"></iframe>`;
+                }
+
+                fileList.appendChild(div);
+            });
+
+        });
+    }
+
+    function deleteFile(fileKey) {
+      fetch(`/api/delete?key=${fileKey}`)
+        .then(res => res.json())
+        .then(data => {
+          alert("File deleted.");
+          loadFiles(); // Refresh list
+        })
+        .catch(err => alert("Error deleting file."));
+    }
+  </script>
+</body>
+</html>
