@@ -44,21 +44,26 @@ const noFileUpload = multer().none(); // parses text fields only
 router.post('/signup', noFileUpload, (req, res) => {
   const { firstname, lastname, email, password, aboutyou } = req.body;
 
-  console.log("Form Data Received:", req.body); // <--- check if this logs correctly
+  console.log("Form Data Received:", req.body);
 
   connection.query(
     "INSERT INTO logindata (firstname, lastname, email, password, aboutyou) VALUES (?, ?, ?, ?, ?)",
     [firstname, lastname, email, password, aboutyou],
     (err, result) => {
       if (err) {
-        console.error("Query Error:", err); // <--- log the error
-        return res.status(400).json({ error: err });
+        console.error("Query Error:", err);
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json([{ msg: 'Email already registered.' }]);
+        }
+        return res.status(400).json([{ msg: 'Signup failed. Please try again.' }]);
       }
-      console.log("Insert Success:", result); // <--- log insert result
-      res.json({ result: 'success' });
+
+      console.log("Insert Success:", result);
+      res.json([{ result: 'success' }]); // ✅ Correct array format
     }
   );
 });
+
 
 
 // Login
@@ -78,6 +83,8 @@ router.post('/login', (req, res) => {
 // File upload
 router.post('/upload', upload.single('file'), (req, res) => {
   const emailid = req.body.emailid;
+  const foldername = req.body.foldername || ''; // ✅ Optional folder name
+
   const file = req.file;
   const filelocation = file.location;
   const filekey = file.key;
@@ -85,8 +92,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
   const created = Date.now();
 
   connection.query(
-    "INSERT INTO userdata (emailid, filelocation, filekey, filename, created) VALUES (?, ?, ?, ?, ?)",
-    [emailid, filelocation, filekey, filename, created],
+    "INSERT INTO userdata (emailid, filelocation, filekey, filename, foldername, created) VALUES (?, ?, ?, ?, ?, ?)",
+    [emailid, filelocation, filekey, filename, foldername, created],
     (err, result) => {
       if (err) return res.status(400).json({ error: err });
       res.json({ result: 'success', file: filelocation });

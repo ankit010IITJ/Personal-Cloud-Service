@@ -1,112 +1,321 @@
-<!-- views/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Your Saved Resources</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    .file-card { border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; }
-    button { margin-top: 0.5rem; }
-    form { margin-bottom: 2rem; }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7f9fc;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1, h2 {
+      color: #2a2a2a;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 2rem;
+    }
+
+    form input[type="file"],
+    form input[type="text"],
+    form select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    form button {
+      padding: 0.7rem 1.5rem;
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    .folder-wrapper {
+      background: #f1f5f9;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+    }
+
+    .folder-wrapper h3 {
+      margin: 0;
+      cursor: pointer;
+      color: #007bff;
+      text-decoration: underline;
+    }
+
+    .file-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+    }
+
+    .file-card img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+
+    .file-card iframe {
+      width: 100%;
+      border: none;
+      margin-top: 1rem;
+    }
+
+    .file-card button {
+      margin-top: 1rem;
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .file-card button:hover {
+      background-color: #c82333;
+    }
+
+    .view-download {
+      margin-top: 0.5rem;
+    }
+
+    .view-download a {
+      color: #007bff;
+      text-decoration: none;
+      margin-right: 1rem;
+    }
+
+    .view-download a:hover {
+      text-decoration: underline;
+    }
+
+    .no-files {
+      color: #777;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+
+      form input,
+      form select,
+      form button {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Welcome, <span id="userEmail"></span></h1>
+  <div class="container">
+    <!-- <h1>Welcome, <span id="userEmail"></span></h1> -->
 
-  <!-- Upload File Form -->
-  <h2>Upload a New File</h2>
-  <form id="uploadForm">
-    <input type="file" name="file" required><br><br>
-    <button type="submit">Upload File</button>
-  </form>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>Welcome, <span id="userEmail"></span></h1>
+      <button onclick="logout()" style="padding: 0.5rem 1rem; background-color: #6c757d; border: none; color: white; border-radius: 6px; cursor: pointer;">Logout</button>
+    </div>
+    
 
-  <!-- File List -->
-  <h2>Your Uploaded Files</h2>
-  <div id="fileList">Loading files...</div>
+    <div class="form-section">
+      <h2>Upload a New File</h2>
+      <form id="uploadForm">
+        <input type="file" name="file" required>
 
-  <script>
-    const email = localStorage.getItem("userEmail");
-    document.getElementById("userEmail").textContent = email || "Guest";
+        <label for="folderSelect">Select Folder (optional):</label>
+        <select id="folderSelect" name="folderSelect">
+          <option value="">-- None --</option>
+        </select>
 
-    if (!email) {
-      alert("Please login first.");
-      window.location.href = "/";
-    } else {
-      loadFiles();
+        <label for="newFolder">Or Create New Folder:</label>
+        <input type="text" id="newFolder" name="newFolder" placeholder="New folder name">
 
-    // Handle File Upload
-    document.getElementById("uploadForm").onsubmit = async function(event) {
-        event.preventDefault();
-        const fileInput = event.target.querySelector('input[name="file"]');
-        const file = fileInput.files[0];
-        if (!file) return alert("Please choose a file.");
+        <button type="submit">Upload File</button>
+      </form>
+    </div>
 
-        const formData = new FormData();
-        formData.append("emailid", email);
-        formData.append("file", file);
+    <div class="file-section">
+      <h2>Your Uploaded Folders</h2>
+      <div id="fileList">Loading files...</div>
+    </div>
+  </div>
 
-        const response = await fetch("/api/upload", {  <!-- ✅ updated this line -->
-          method: "POST",
-          body: formData
+  <!-- JS is same as your current version -->
+  <!-- Place your JavaScript code here (unchanged) -->
+  <!-- ... -->
+
+
+<!-- Replace your existing script with this updated version -->
+<script>
+  const email = localStorage.getItem("userEmail");
+  document.getElementById("userEmail").textContent = email || "Guest";
+
+  if (!email) {
+    alert("Please login first.");
+    window.location.href = "/";
+  } else {
+    loadFiles();
+  }
+
+  document.getElementById("uploadForm").onsubmit = async function(event) {
+    event.preventDefault();
+    const fileInput = event.target.querySelector('input[name="file"]');
+    const file = fileInput.files[0];
+    if (!file) return alert("Please choose a file.");
+
+    const formData = new FormData();
+    formData.append("emailid", email);
+    formData.append("file", file);
+
+    const newFolder = document.getElementById("newFolder").value.trim();
+    const selectedFolder = document.getElementById("folderSelect").value;
+    const folderToUse = newFolder || selectedFolder || "";
+    formData.append("foldername", folderToUse);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+    alert(result?.result || "File uploaded.");
+    fileInput.value = '';
+    document.getElementById("newFolder").value = '';
+    loadFiles();
+  };
+
+  let currentlyOpenContainer = null;
+
+  function loadFiles() {
+    fetch(`/api/userdata?emailid=${email}`)
+      .then(res => res.json())
+      .then(data => {
+        const fileList = document.getElementById("fileList");
+        fileList.innerHTML = "";
+
+        if (data.length === 0) {
+          fileList.innerHTML = "<p>No files uploaded yet.</p>";
+          return;
+        }
+
+        const folders = {};
+        data.forEach(file => {
+          const folder = file.foldername || "Uncategorized";
+          if (!folders[folder]) folders[folder] = [];
+          folders[folder].push(file);
         });
 
-        const result = await response.json();
-        alert(result?.result || "File uploaded.");
-        fileInput.value = '';
-        loadFiles();
-      };
-    }
+        const folderSelect = document.getElementById("folderSelect");
+        folderSelect.innerHTML = `<option value="">-- None --</option>`;
+        Object.keys(folders).forEach(folder => {
+          const option = document.createElement("option");
+          option.value = folder;
+          option.textContent = folder;
+          folderSelect.appendChild(option);
+        });
 
-    function loadFiles() {
-      fetch(`/api/userdata?emailid=${email}`)
-        .then(res => res.json())
-        .then(data => {
-          const fileList = document.getElementById("fileList");
-          fileList.innerHTML = "";
+        for (const [folderName, files] of Object.entries(folders)) {
+          const folderWrapper = document.createElement("div");
+          folderWrapper.className = "folder-wrapper";
 
-          if (data.length === 0) {
-            fileList.innerHTML = "<p>No files uploaded yet.</p>";
-            return;
-          }
+          const folderHeader = document.createElement("div");
+          folderHeader.innerHTML = `📁 <span style="cursor:pointer; color:blue; text-decoration:underline;">${folderName}</span>`;
+          folderHeader.style.marginTop = "1rem";
 
-          data.forEach(file => {
-  const div = document.createElement("div");
-  div.className = "file-card";
+          const fileContainer = document.createElement("div");
+          fileContainer.style.display = "none";
+          fileContainer.style.marginLeft = "1rem";
 
+          files.forEach(file => {
+            const div = document.createElement("div");
+            div.className = "file-card";
             div.innerHTML = `
-                <p><strong>Filename:</strong> ${file.filename}</p>
-                <p>
+              <p><strong>Filename:</strong> ${file.filename}</p>
+              <p>
                 <a href="${file.filelocation}" target="_blank" rel="noopener noreferrer">👁️ View</a> | 
                 <a href="${file.filelocation}" download>⬇️ Download</a>
-                </p>
-                <button onclick="deleteFile('${file.filekey}')">Delete</button>
+              </p>
+              <button onclick="deleteFile('${file.filekey}')">Delete</button>
             `;
-                // 🔍 Preview image files
-                if (file.filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                    div.innerHTML += `<img src="${file.filelocation}" width="300px" />`;
-                }
 
-                // 📄 Preview PDFs
-                if (file.filename.match(/\.pdf$/i)) {
-                    div.innerHTML += `<iframe src="${file.filelocation}" width="100%" height="400px"></iframe>`;
-                }
+            if (file.filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
+              div.innerHTML += `<img src="${file.filelocation}" width="300px" />`;
+            } else if (file.filename.match(/\.pdf$/i)) {
+              div.innerHTML += `<iframe src="${file.filelocation}" width="100%" height="400px"></iframe>`;
+            }
 
-                fileList.appendChild(div);
-            });
+            fileContainer.appendChild(div);
+          });
 
-        });
-    }
+          folderHeader.addEventListener("click", () => {
+            // Close previously open folder
+            if (currentlyOpenContainer && currentlyOpenContainer !== fileContainer) {
+              currentlyOpenContainer.style.display = "none";
+            }
 
-    function deleteFile(fileKey) {
-      fetch(`/api/delete?key=${fileKey}`)
-        .then(res => res.json())
-        .then(data => {
-          alert("File deleted.");
-          loadFiles(); // Refresh list
-        })
-        .catch(err => alert("Error deleting file."));
-    }
-  </script>
+            const isVisible = fileContainer.style.display === "block";
+            fileContainer.style.display = isVisible ? "none" : "block";
+            currentlyOpenContainer = fileContainer.style.display === "block" ? fileContainer : null;
+          });
+
+          folderWrapper.appendChild(folderHeader);
+          folderWrapper.appendChild(fileContainer);
+          fileList.appendChild(folderWrapper);
+        }
+      })
+      .catch(err => {
+        console.error("Error loading files:", err);
+        document.getElementById("fileList").innerHTML = "<p>Error loading files.</p>";
+      });
+  }
+
+  function deleteFile(fileKey) {
+    fetch(`/api/delete?key=${fileKey}`)
+      .then(res => res.json())
+      .then(data => {
+        alert("File deleted.");
+        loadFiles();
+      })
+      .catch(err => alert("Error deleting file."));
+  }
+
+  function logout() {
+    localStorage.removeItem("userEmail");
+    window.location.href = "/";
+  }
+</script>
+
 </body>
 </html>

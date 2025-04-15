@@ -1,96 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload and Signup</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signup / Login</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input, textarea {
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.75rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .toggle-link {
+      margin-top: 1rem;
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .message {
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    .success-message {
+      color: green;
+    }
+
+    .error-message {
+      color: red;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Signup Form</h1>
-    <form action="/api/signup" method="POST" id="signup-form">
-        <input type="text" name="firstname" placeholder="First Name" required><br>
-        <input type="text" name="lastname" placeholder="Last Name" required><br>
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <textarea name="aboutyou" placeholder="About You" required></textarea><br>
-        <button type="submit">Sign Up</button>
+  <div class="container">
+    <h1 id="form-title">Sign Up</h1>
+
+    <!-- Signup Form -->
+    <form id="signup-form">
+      <input type="text" name="firstname" placeholder="First Name" required>
+      <input type="text" name="lastname" placeholder="Last Name" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <textarea name="aboutyou" placeholder="About You" required></textarea>
+      <button type="submit">Sign Up</button>
     </form>
 
-    <h1>Login Form</h1>
-    <form id="login-form">
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
+    <!-- Login Form -->
+    <form id="login-form" class="hidden">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
     </form>
 
-    <!-- <h1>File Upload Form</h1>
-    <form action="/api/userdata" method="POST" enctype="multipart/form-data" id="file-upload-form">
-        <input type="text" name="emailid" placeholder="Email ID" required><br>
-        <input type="file" name="file" required><br>
-        <button type="submit">Upload File</button>
-    </form> -->
+    <div id="message" class="message hidden"></div>
+    <div class="toggle-link" id="toggle-link">Already have an account? Login</div>
+  </div>
 
-    <script>
-        // Handle form submission for signup
-        document.getElementById('signup-form').onsubmit = async function(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const response = await fetch('/api/signup', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            console.log(data);
-            alert(data[0].result || data[0].msg);
-        };
+  <script>
+    const signupForm = document.getElementById('signup-form');
+    const loginForm = document.getElementById('login-form');
+    const formTitle = document.getElementById('form-title');
+    const toggleLink = document.getElementById('toggle-link');
+    const messageBox = document.getElementById('message');
 
+    // Toggle between Signup and Login
+    toggleLink.addEventListener('click', () => {
+      const isSignupVisible = !signupForm.classList.contains('hidden');
 
-        // Handle login form
-        document.getElementById('login-form').onsubmit = async function(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const plainData = Object.fromEntries(formData.entries());
-            const email = plainData.email;
+      signupForm.classList.toggle('hidden', isSignupVisible);
+      loginForm.classList.toggle('hidden', !isSignupVisible);
+      formTitle.textContent = isSignupVisible ? 'Login' : 'Sign Up';
+      toggleLink.textContent = isSignupVisible
+        ? "Don't have an account? Sign Up"
+        : "Already have an account? Login";
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(plainData)
-                });
+      messageBox.classList.add('hidden');
+    });
 
-                const data = await response.json();
-                console.log(data);
+    // Show status messages
+    function showMessage(text, success = true) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${success ? 'success-message' : 'error-message'}`;
+      messageBox.classList.remove('hidden');
 
-                if (data.result === 'success') {
-                    localStorage.setItem("userEmail", email); // Store email
-                    window.location.href = "/dashboard.html"; // Redirect to dashboard
-                } else {
-                    alert(data.result || "Invalid login.");
-                }
-            } catch (error) {
-                console.error("Login Error:", error);
-                alert("An error occurred during login.");
-            }
-        };
+      setTimeout(() => {
+        messageBox.classList.add('hidden');
+      }, 4000);
+    }
 
+    // Handle Signup
+    signupForm.onsubmit = async (event) => {
+      event.preventDefault();
+      const formData = new FormData(signupForm);
 
-        // Handle file upload
-        // document.getElementById('file-upload-form').onsubmit = async function(event) {
-        //     event.preventDefault();
-        //     const formData = new FormData(event.target);
-        //     const response = await fetch('/api/userdata', {
-        //         method: 'POST',
-        //         body: formData
-        //     });
-        //     const data = await response.json();
-        //     console.log(data);
-        //     alert(data[0].result || data[0].msg);
-        // };
-    </script>
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        const msg = data[0].result || data[0].msg;
+
+        if (data[0].result?.toLowerCase() === 'success') {
+          showMessage("Signup successful! Please login.", true);
+          toggleLink.click(); // Automatically switch to login
+        } else {
+          showMessage(msg, false);
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage("Error during signup.", false);
+      }
+    };
+
+    // Handle Login
+    loginForm.onsubmit = async (event) => {
+      event.preventDefault();
+      const formData = new FormData(loginForm);
+      const plainData = Object.fromEntries(formData.entries());
+      const email = plainData.email;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(plainData)
+        });
+
+        const data = await res.json();
+        if (data.result === 'success') {
+          localStorage.setItem('userEmail', email);
+          window.location.href = "/dashboard.html";
+        } else {
+          showMessage(data.result || "Invalid login.", false);
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage("Error during login.", false);
+      }
+    };
+  </script>
 
 </body>
 </html>
