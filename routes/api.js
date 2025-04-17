@@ -30,11 +30,11 @@ const upload = multer({
     s3: s3,
     bucket: process.env.AWS_BUCKET_NAME,
     // acl: 'public-read',
-    contentDisposition: 'inline', // 👈 tells browser to display if possible
-    contentType: multerS3.AUTO_CONTENT_TYPE, // 👈 sets correct MIME type
+    contentDisposition: 'inline',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
   }),
-  limits: { fileSize: 50 * 1024 * 1024 } // ⬅️ Increased to 50 MB
+  limits: { fileSize: 50 * 1024 * 1024 } //Increased to 50 MB
 });
 
 
@@ -59,7 +59,7 @@ router.post('/signup', noFileUpload, (req, res) => {
       }
 
       console.log("Insert Success:", result);
-      res.json([{ result: 'success' }]); // ✅ Correct array format
+      res.json([{ result: 'success' }]);
     }
   );
 });
@@ -83,7 +83,7 @@ router.post('/login', (req, res) => {
 // File upload
 router.post('/upload', upload.single('file'), (req, res) => {
   const emailid = req.body.emailid;
-  const foldername = req.body.foldername || ''; // ✅ Optional folder name
+  const foldername = req.body.foldername || '';
 
   const file = req.file;
   const filelocation = file.location;

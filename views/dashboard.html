@@ -145,7 +145,10 @@
 
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1>Welcome, <span id="userEmail"></span></h1>
-      <button onclick="logout()" style="padding: 0.5rem 1rem; background-color: #6c757d; border: none; color: white; border-radius: 6px; cursor: pointer;">Logout</button>
+      <button onclick="logout()" 
+      style="padding: 0.5rem 1rem; background-color: #6c757d; border: none; color: white; border-radius: 6px; cursor: pointer;">
+        Logout
+      </button>
     </div>
     
 
@@ -172,12 +175,6 @@
     </div>
   </div>
 
-  <!-- JS is same as your current version -->
-  <!-- Place your JavaScript code here (unchanged) -->
-  <!-- ... -->
-
-
-<!-- Replace your existing script with this updated version -->
 <script>
   const email = localStorage.getItem("userEmail");
   document.getElementById("userEmail").textContent = email || "Guest";
@@ -280,7 +277,6 @@
           });
 
           folderHeader.addEventListener("click", () => {
-            // Close previously open folder
             if (currentlyOpenContainer && currentlyOpenContainer !== fileContainer) {
               currentlyOpenContainer.style.display = "none";
             }
